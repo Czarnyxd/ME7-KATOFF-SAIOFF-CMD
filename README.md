@@ -2,7 +2,9 @@
 
 **Disable Catalyst (CDKAT) and Secondary Air Injection (CDSLS) DTC switches in Bosch ME7 / ME7.5 ECU firmware.**
 
-This utility automatically locates and disables the **CDKAT** (Catalyst Diagnostic) and **CDSLS** (Secondary Air Injection Diagnostic) switches using original Bosch ME7 code patterns. The original firmware is never overwritten, making the modification process both safe and simple.
+A lightweight command-line utility that automatically locates and safely disables **CDKAT** and **CDSLS** diagnostic switches using original Bosch ME7 code patterns.
+
+The original BIN file is **never overwritten**, making the modification process safe and straightforward.
 
 ---
 
@@ -47,13 +49,13 @@ Kat_Sai_OFF.exe dump.bin -s
 
 The original BIN file is **never modified**.
 
-The program creates a new file:
+The program creates:
 
 ```text
 dump_CDKAT_CDSLS_OFF.bin
 ```
 
-If **ME7Sum** is located in the same directory, the checksum will be corrected automatically and an additional checksum-corrected BIN file will be generated.
+If **ME7Sum** is available in the same directory, an additional checksum-corrected BIN file is automatically generated.
 
 ---
 
@@ -71,34 +73,67 @@ To enable automatic checksum correction, simply place **me7sum.exe** in the same
 
 **Never flash a modified BIN file with an invalid checksum.**
 
-If checksum correction fails or **ME7Sum** is not found, **do not flash the generated BIN file**.
+If checksum correction fails or **ME7Sum** is missing, the generated BIN **must not be flashed**.
 
 Always verify the modified firmware before programming the ECU.
 
 ---
 
+# 🖥️ Example
+
+```text
+========================================================================
+              ME7.5 CDKAT / CDSLS DISABLER
+        Catalyst & Secondary Air Injection DTC Switches
+========================================================================
+
+[1/6] Reading ECU information...
+
+[2/6] Searching CDKAT...
+
+[3/6] Searching CDSLS...
+
+[4/6] Applying changes...
+
+[5/6] Correcting checksum...
+
+[6/6] Finished
+```
+
+---
+
 # 🔬 Verification Notice
 
-One of the biggest challenges during development was reliably identifying the **CDKAT** and **CDSLS** switch addresses across the many different Bosch **ME7 / ME7.5** firmware variants.
+One of the biggest challenges during the development of this tool was correctly identifying the **CDKAT** and **CDSLS** switch addresses across the many different Bosch **ME7 / ME7.5** firmware variants.
 
-Although the tool has been successfully tested on multiple firmware files and works as intended, I kindly ask experienced Bosch ME7 users to **verify every modified BIN file** using trusted tools such as **WinOLS**, **ME7Check**, or other ECU analysis software.
+Although the tool has been successfully tested on multiple firmware files, I kindly ask experienced Bosch ME7 users to **verify every modified BIN file** after modification using trusted software such as **WinOLS**, **ME7Check**, or other ECU analysis tools.
 
-If you find a firmware where the tool identifies an incorrect switch address or behaves unexpectedly, please create a **GitHub Issue** and include as much information as possible, such as:
+If you find a firmware where the tool identifies an incorrect address or behaves unexpectedly, please open a **GitHub Issue** and include as much information as possible, for example:
 
 * ECU part number
-* Hardware number
-* Software number
-* Original BIN file
-* Program log
+* Bosch hardware number
+* Bosch software number
+* Original BIN file *(if possible)*
+* Program output / log
 * Any additional observations
 
-Every bug report and compatibility test helps improve support for additional Bosch ME7 / ME7.5 firmware versions.
+Every report helps improve compatibility with more Bosch **ME7 / ME7.5** firmware versions.
+
+---
+
+# 🤝 Contributing
+
+Bug reports, feature requests and Pull Requests are always welcome.
+
+If you have tested the software on firmware that is not yet known to be compatible, your feedback is highly appreciated and helps improve the project for everyone.
+
+Whether you find a bug, discover a new supported ECU, or have an idea for improving the software, feel free to contribute.
 
 ---
 
 # 🌍 Open Source
 
-This project is fully **Open Source**.
+This project is completely **Open Source**.
 
 Everyone is welcome to:
 
@@ -126,4 +161,6 @@ The author assumes **no responsibility** for any damage to the ECU, vehicle, or 
 
 If you find this project useful, please consider giving it a ⭐ on GitHub.
 
-Thank you for your support, and happy tuning!
+It helps the project reach more Bosch ME7 enthusiasts and supports future development.
+
+Thank you for your support and happy tuning! 🚗💨
