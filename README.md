@@ -102,25 +102,6 @@ Always verify the modified firmware before programming the ECU.
 
 ---
 
-# 🔬 Verification Notice
-
-One of the biggest challenges during the development of this tool was correctly identifying the **CDKAT** and **CDSLS** switch addresses across the many different Bosch **ME7 / ME7.5** firmware variants.
-
-Although the tool has been successfully tested on multiple firmware files, I kindly ask experienced Bosch ME7 users to **verify every modified BIN file** after modification using trusted software such as **WinOLS**, **ME7Check**, or other ECU analysis tools.
-
-If you find a firmware where the tool identifies an incorrect address or behaves unexpectedly, please open a **GitHub Issue** and include as much information as possible, for example:
-
-* ECU part number
-* Bosch hardware number
-* Bosch software number
-* Original BIN file *(if possible)*
-* Program output / log
-* Any additional observations
-
-Every report helps improve compatibility with more Bosch **ME7 / ME7.5** firmware versions.
-
----
-
 # 🤝 Contributing
 
 Bug reports, feature requests and Pull Requests are always welcome.
