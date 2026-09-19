@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-VERSION = "1.3.0"
+VERSION = "1.3.1"
 LINE = "=" * 72
 SUBLINE = "-" * 72
 VALID_BIN_SIZES = {512 * 1024, 1024 * 1024, 2 * 1024 * 1024}
@@ -76,12 +76,26 @@ SIGNATURES = (
     Signature(
         "CDSLS",
         (
-            0xD7, 0x40, None, None,
-            0xC2, 0xF4, None, None,
-            0x68, 0x41, 0x2D, 0x05,
-            0xE6, 0xF4, 0x00, 0x04,
-            0x74, 0xF4,
+            # Exact structure from the CDSLS XML definition:
+            # E6 F4 XX XX 64 F4 A0 8B D7 40 06 02 C2 F4
+            # MMXX XX 68 41 2D XX E0 14 74 F4 A0 8B 0D XX
+            # E6 F4 XX XX 64 F4 A0 8B D7 40 06 02 C2 F4
+            0xE6, 0xF4, None, None,
+            0x64, 0xF4, 0xA0, 0x8B,
+            0xD7, 0x40, 0x06, 0x02,
+            0xC2, 0xF4,
+            None, None,
+            0x68, 0x41, 0x2D, None,
+            0xE0, 0x14,
+            0x74, 0xF4, 0xA0, 0x8B,
+            0x0D, None,
+            0xE6, 0xF4, None, None,
+            0x64, 0xF4, 0xA0, 0x8B,
+            0xD7, 0x40, 0x06, 0x02,
+            0xC2, 0xF4,
         ),
+        marker_index=14,
+        dpp_offset_from_marker=-4,
     ),
 )
 
@@ -106,37 +120,48 @@ def find_first_match(data: bytes, signature: Signature) -> Match | None:
     if last_start < 0:
         return None
 
+    first_rejected: Match | None = None
+
     for start in range(last_start + 1):
         if not pattern_matches(data, start, signature.pattern):
             continue
 
         marker = start + signature.marker_index
         dpp_position = marker + signature.dpp_offset_from_marker
+
+        # Both values are 16-bit operands stored little-endian in ME7 code.
         dpp_value = u16le(data, dpp_position)
         map_operand = u16le(data, marker)
         switch_address = calculate_me7_address(dpp_value, map_operand)
 
         if switch_address < 0 or switch_address >= len(data):
-            return Match(
+            rejected = Match(
                 signature.name, start, marker, dpp_value, map_operand,
                 switch_address, -1, False,
                 "calculated address is outside the BIN",
             )
+            if first_rejected is None:
+                first_rejected = rejected
+            continue
 
         current_value = data[switch_address]
         if current_value not in (0x00, 0x01):
-            return Match(
+            rejected = Match(
                 signature.name, start, marker, dpp_value, map_operand,
                 switch_address, current_value, False,
                 f"unexpected switch value 0x{current_value:02X}",
             )
+            if first_rejected is None:
+                first_rejected = rejected
+            continue
 
         return Match(
             signature.name, start, marker, dpp_value, map_operand,
             switch_address, current_value, True, "validated",
         )
 
-    return None
+    # Preserve useful diagnostics if candidates existed, but none validated.
+    return first_rejected
 
 
 def clean_ascii(value: bytes) -> str:
